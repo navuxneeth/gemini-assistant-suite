@@ -61,37 +61,10 @@ serve(async (req) => {
     const chatData = await chatResponse.json();
     const responseText = chatData.choices[0].message.content;
 
-    // Generate audio response
-    let audioBase64 = null;
-    try {
-      const ttsResponse = await fetch("https://api.openai.com/v1/audio/speech", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "tts-1",
-          input: responseText.substring(0, 500), // Limit length for performance
-          voice: "alloy",
-          response_format: "mp3",
-        }),
-      });
-
-      if (ttsResponse.ok) {
-        const audioBuffer = await ttsResponse.arrayBuffer();
-        const uint8Array = new Uint8Array(audioBuffer);
-        audioBase64 = btoa(String.fromCharCode(...uint8Array));
-      }
-    } catch (error) {
-      console.error("TTS error:", error);
-      // Continue without audio if TTS fails
-    }
-
     return new Response(
       JSON.stringify({
         response: responseText,
-        audio: audioBase64,
+        audio: null,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

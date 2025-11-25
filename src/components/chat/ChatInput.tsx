@@ -11,7 +11,6 @@ type Props = {
   setIsThinking: (value: boolean) => void;
   isListening: boolean;
   setIsListening: (value: boolean) => void;
-  setIsPlayingAudio: (value: boolean) => void;
   onShowVision: () => void;
 };
 
@@ -22,7 +21,6 @@ const ChatInput = ({
   setIsThinking,
   isListening,
   setIsListening,
-  setIsPlayingAudio,
   onShowVision,
 }: Props) => {
   const [input, setInput] = useState("");
@@ -58,14 +56,6 @@ const ChatInput = ({
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-
-      // Play audio response
-      if (data.audio) {
-        setIsPlayingAudio(true);
-        const audio = new Audio(`data:audio/mp3;base64,${data.audio}`);
-        audio.onended = () => setIsPlayingAudio(false);
-        audio.play();
-      }
     } catch (error) {
       toast({
         title: "Error",
@@ -84,51 +74,53 @@ const ChatInput = ({
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      const chunks: Blob[] = [];
+      // Use browser's Web Speech API
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      
+      if (!SpeechRecognition) {
+        toast({
+          title: "Not supported",
+          description: "Speech recognition is not supported in your browser.",
+          variant: "destructive",
+        });
+        return;
+      }
 
-      mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(chunks, { type: "audio/webm" });
-        const reader = new FileReader();
-        
-        reader.onloadend = async () => {
-          const base64Audio = (reader.result as string).split(",")[1];
-          
-          try {
-            const { data, error } = await supabase.functions.invoke("speech-to-text", {
-              body: { audio: base64Audio },
-            });
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
 
-            if (error) throw error;
-            setInput(data.text);
-          } catch (error) {
-            toast({
-              title: "Error",
-              description: "Failed to transcribe audio",
-              variant: "destructive",
-            });
-          }
-        };
-        
-        reader.readAsDataURL(audioBlob);
-        stream.getTracks().forEach(track => track.stop());
+      recognition.onstart = () => {
+        setIsListening(true);
       };
 
-      setIsListening(true);
-      mediaRecorder.start();
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setInput(transcript);
+        setIsListening(false);
+      };
 
-      setTimeout(() => {
-        if (mediaRecorder.state === "recording") {
-          mediaRecorder.stop();
-          setIsListening(false);
-        }
-      }, 5000);
+      recognition.onerror = (event: any) => {
+        console.error("Speech recognition error:", event.error);
+        setIsListening(false);
+        toast({
+          title: "Recognition failed",
+          description: "Please try again or type your message.",
+          variant: "destructive",
+        });
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognition.start();
     } catch (error) {
+      console.error("Speech recognition error:", error);
       toast({
-        title: "Error",
-        description: "Microphone access denied",
+        title: "Speech recognition failed",
+        description: "Please try typing your message instead.",
         variant: "destructive",
       });
     }

@@ -29,7 +29,6 @@ const ChatInterface = () => {
   const [showTone, setShowTone] = useState(false);
   const [showVision, setShowVision] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -71,7 +70,6 @@ const ChatInterface = () => {
         <ChatMessages
           messages={messages}
           isThinking={isThinking}
-          isPlayingAudio={isPlayingAudio}
         />
         
         <ChatInput
@@ -81,7 +79,6 @@ const ChatInterface = () => {
           setIsThinking={setIsThinking}
           isListening={isListening}
           setIsListening={setIsListening}
-          setIsPlayingAudio={setIsPlayingAudio}
           onShowVision={() => setShowVision(true)}
         />
       </div>

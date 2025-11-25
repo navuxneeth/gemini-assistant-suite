@@ -2,15 +2,13 @@ import { useEffect, useRef } from "react";
 import { Message } from "../ChatInterface";
 import MessageBubble from "./MessageBubble";
 import ThinkingIndicator from "./ThinkingIndicator";
-import AudioVisualizer from "./AudioVisualizer";
 
 type Props = {
   messages: Message[];
   isThinking: boolean;
-  isPlayingAudio: boolean;
 };
 
-const ChatMessages = ({ messages, isThinking, isPlayingAudio }: Props) => {
+const ChatMessages = ({ messages, isThinking }: Props) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -30,7 +28,6 @@ const ChatMessages = ({ messages, isThinking, isPlayingAudio }: Props) => {
           <MessageBubble key={message.id} message={message} />
         ))}
         {isThinking && <ThinkingIndicator />}
-        {isPlayingAudio && <AudioVisualizer />}
         <div ref={messagesEndRef} />
       </div>
     </main>
