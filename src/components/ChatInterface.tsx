@@ -3,6 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import ChatHeader from "./chat/ChatHeader";
 import ChatMessages from "./chat/ChatMessages";
 import ChatInput from "./chat/ChatInput";
+import VoiceWave from "./chat/VoiceWave";
 import SettingsModal from "./modals/SettingsModal";
 import ToneModal from "./modals/ToneModal";
 import VisionModal from "./modals/VisionModal";
@@ -29,6 +30,7 @@ const ChatInterface = () => {
   const [showTone, setShowTone] = useState(false);
   const [showVision, setShowVision] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -72,6 +74,8 @@ const ChatInterface = () => {
           isThinking={isThinking}
         />
         
+        {isSpeaking && <VoiceWave />}
+        
         <ChatInput
           messages={messages}
           setMessages={setMessages}
@@ -80,6 +84,7 @@ const ChatInterface = () => {
           isListening={isListening}
           setIsListening={setIsListening}
           onShowVision={() => setShowVision(true)}
+          setIsSpeaking={setIsSpeaking}
         />
       </div>
 

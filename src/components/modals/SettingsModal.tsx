@@ -20,10 +20,20 @@ const SettingsModal = ({ open, onClose, onClearHistory }: Props) => {
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
           <DialogDescription>
-            Powered by Google Gemini AI
+            Powered by Gemini and Web Speech API
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
+          <div className="text-sm text-muted-foreground text-center py-2">
+            <p>Made by Navaneeth, Aditi, Anarva, Krishna</p>
+          </div>
+          <Button
+            onClick={() => window.open('https://github.com/navuxneeth', '_blank')}
+            variant="outline"
+            className="w-full"
+          >
+            Access Github
+          </Button>
           <Button
             onClick={onClearHistory}
             variant="destructive"

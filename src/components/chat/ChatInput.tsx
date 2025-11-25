@@ -12,6 +12,7 @@ type Props = {
   isListening: boolean;
   setIsListening: (value: boolean) => void;
   onShowVision: () => void;
+  setIsSpeaking: (value: boolean) => void;
 };
 
 const ChatInput = ({
@@ -22,11 +23,13 @@ const ChatInput = ({
   isListening,
   setIsListening,
   onShowVision,
+  setIsSpeaking,
 }: Props) => {
   const [input, setInput] = useState("");
+  const [isVoiceInput, setIsVoiceInput] = useState(false);
   const { toast } = useToast();
 
-  const handleSend = async () => {
+  const handleSend = async (voiceMode = false) => {
     if (!input.trim()) return;
 
     const userMessage: Message = {
@@ -56,6 +59,11 @@ const ChatInput = ({
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+
+      // If voice input was used, speak the response
+      if (voiceMode) {
+        speakText(data.response);
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -64,6 +72,16 @@ const ChatInput = ({
       });
     } finally {
       setIsThinking(false);
+    }
+  };
+
+  const speakText = (text: string) => {
+    if ('speechSynthesis' in window) {
+      setIsSpeaking(true);
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+      window.speechSynthesis.speak(utterance);
     }
   };
 
@@ -98,7 +116,7 @@ const ChatInput = ({
       recognition.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
         setInput(transcript);
-        setIsListening(false);
+        setIsVoiceInput(true);
       };
 
       recognition.onerror = (event: any) => {
@@ -113,6 +131,13 @@ const ChatInput = ({
 
       recognition.onend = () => {
         setIsListening(false);
+        // Auto-send when speech recognition ends
+        setTimeout(() => {
+          if (isVoiceInput) {
+            handleSend(true);
+            setIsVoiceInput(false);
+          }
+        }, 100);
       };
 
       recognition.start();
@@ -132,7 +157,7 @@ const ChatInput = ({
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && handleSend()}
+        onKeyDown={(e) => e.key === "Enter" && handleSend(false)}
         placeholder="Ask anything..."
         className="flex-1 rounded-full border-none bg-input px-4 py-3 text-sm outline-none"
       />
