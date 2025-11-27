@@ -19,7 +19,7 @@ const WelcomeModal = ({ open, onClose }: Props) => {
         <DialogHeader>
           <DialogTitle>Welcome to AI Assistant</DialogTitle>
           <DialogDescription className="space-y-2">
-            <p>Powered by Gemini and Web Speech API.</p>
+            <p>Powered by Web Speech API and Gemini.</p>
             <p>Chat with text, images, and voice to get intelligent responses.</p>
           </DialogDescription>
         </DialogHeader>

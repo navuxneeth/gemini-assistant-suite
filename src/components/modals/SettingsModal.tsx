@@ -3,9 +3,10 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import githubLogo from "@/assets/github-logo.png";
+import { Linkedin } from "lucide-react";
 
 type Props = {
   open: boolean;
@@ -18,20 +19,31 @@ const SettingsModal = ({ open, onClose, onClearHistory }: Props) => {
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Settings</DialogTitle>
-          <DialogDescription>
-            Powered by Gemini and Web Speech API
+          <DialogDescription className="text-center">
+            Powered by Web Speech API and Gemini
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
-          <div className="text-sm text-muted-foreground text-center py-2">
+          <div className="text-sm text-muted-foreground text-center space-y-1">
             <p>Made by Navaneeth, Aditi, Anarva, Krishna</p>
+            <p>of MIT Institute of Design | 2025</p>
+            <div className="flex items-center justify-center gap-2 pt-1">
+              <p>Mentored under Prof. Aryan Halkude</p>
+              <button
+                onClick={() => window.open('https://www.linkedin.com/in/aryan-halkude', '_blank')}
+                className="inline-flex items-center justify-center transition-colors hover:text-primary"
+                aria-label="LinkedIn profile"
+              >
+                <Linkedin className="h-4 w-4" />
+              </button>
+            </div>
           </div>
           <Button
             onClick={() => window.open('https://github.com/navuxneeth', '_blank')}
             variant="outline"
-            className="w-full"
+            className="w-full flex items-center justify-center gap-2"
           >
+            <img src={githubLogo} alt="GitHub" className="h-5 w-5" />
             Access Github
           </Button>
           <Button

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Message, Tone } from "../ChatInterface";
@@ -26,8 +26,8 @@ const ChatInput = ({
   setIsSpeaking,
 }: Props) => {
   const [input, setInput] = useState("");
-  const [isVoiceInput, setIsVoiceInput] = useState(false);
   const { toast } = useToast();
+  const inputTextRef = useRef("");
 
   const handleSend = async (voiceMode = false) => {
     if (!input.trim()) return;
@@ -116,7 +116,7 @@ const ChatInput = ({
       recognition.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
         setInput(transcript);
-        setIsVoiceInput(true);
+        inputTextRef.current = transcript;
       };
 
       recognition.onerror = (event: any) => {
@@ -132,12 +132,10 @@ const ChatInput = ({
       recognition.onend = () => {
         setIsListening(false);
         // Auto-send when speech recognition ends
-        setTimeout(() => {
-          if (isVoiceInput) {
-            handleSend(true);
-            setIsVoiceInput(false);
-          }
-        }, 100);
+        if (inputTextRef.current.trim()) {
+          handleSend(true);
+          inputTextRef.current = "";
+        }
       };
 
       recognition.start();
