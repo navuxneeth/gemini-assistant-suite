@@ -5,7 +5,6 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import githubLogo from "@/assets/github-logo.png";
 import { Linkedin } from "lucide-react";
 
 type Props = {
@@ -33,11 +32,11 @@ const SettingsModal = ({ open, onClose, onClearHistory, onToggleTheme, theme }: 
               <p>Mentored under <span className="text-blue-600">Prof. Aryan Halkude</span></p>
               <button
                 onClick={() => window.open('https://www.linkedin.com/in/aryan-halkude', '_blank')}
-                className="inline-flex items-center justify-center gap-1 text-blue-600 transition-colors hover:text-blue-700"
-                aria-label="Visit LinkedIn"
+                className="inline-flex items-center justify-center gap-1 text-blue-600 border border-blue-600 rounded px-2 py-1 transition-colors hover:bg-blue-50 dark:hover:bg-blue-950"
+                aria-label="LinkedIn"
               >
-                <Linkedin className="h-4 w-4" />
-                <span className="text-xs">Visit LinkedIn</span>
+                <Linkedin className="h-3 w-3" />
+                <span className="text-xs">LinkedIn</span>
               </button>
             </div>
           </div>
@@ -46,15 +45,13 @@ const SettingsModal = ({ open, onClose, onClearHistory, onToggleTheme, theme }: 
             variant="outline"
             className="w-full flex items-center justify-center gap-2"
           >
-            <img src={githubLogo} alt="GitHub" className="h-5 w-5" />
-            Access Github
+            View Github Repository
           </Button>
           <Button
             onClick={onToggleTheme}
             variant="outline"
             className="w-full flex items-center justify-center gap-2"
           >
-            {theme === "dark" ? "🌙" : "☀️"}
             {theme === "dark" ? "Dark Mode" : "Light Mode"}
           </Button>
           <Button
