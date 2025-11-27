@@ -31,6 +31,8 @@ const ChatInterface = () => {
   const [showVision, setShowVision] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isSpeakingLastMessage, setIsSpeakingLastMessage] = useState(false);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -57,17 +59,57 @@ const ChatInterface = () => {
     setTheme(prev => prev === "light" ? "dark" : "light");
   };
 
+  const handleSpeakLastMessage = () => {
+    if (isSpeakingLastMessage) {
+      // Stop speaking
+      window.speechSynthesis.cancel();
+      setIsSpeakingLastMessage(false);
+      return;
+    }
+
+    // Find the last assistant message
+    const lastAssistantMessage = [...messages]
+      .reverse()
+      .find((msg) => msg.role === "assistant");
+
+    if (!lastAssistantMessage) {
+      toast({
+        title: "No message to speak",
+        description: "There are no assistant messages to read aloud.",
+      });
+      return;
+    }
+
+    if ('speechSynthesis' in window) {
+      setIsSpeakingLastMessage(true);
+      const utterance = new SpeechSynthesisUtterance(lastAssistantMessage.content);
+      utteranceRef.current = utterance;
+      
+      utterance.onend = () => {
+        setIsSpeakingLastMessage(false);
+        utteranceRef.current = null;
+      };
+      
+      utterance.onerror = () => {
+        setIsSpeakingLastMessage(false);
+        utteranceRef.current = null;
+      };
+      
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   return (
     <div className="flex h-screen items-center justify-center bg-gradient-to-br from-primary-light/20 to-background p-4">
       <div className="flex h-[95vh] max-h-[750px] w-full max-w-md flex-col overflow-hidden rounded-2xl border bg-card shadow-2xl">
-        <ChatHeader
-          onNewChat={handleNewChat}
-          onToggleTheme={toggleTheme}
-          onShowSettings={() => setShowSettings(true)}
-          onShowTone={() => setShowTone(true)}
-          theme={theme}
-          tone={tone}
-        />
+      <ChatHeader
+        onNewChat={handleNewChat}
+        onShowSettings={() => setShowSettings(true)}
+        onShowTone={() => setShowTone(true)}
+        tone={tone}
+        onSpeakLastMessage={handleSpeakLastMessage}
+        isSpeakingLastMessage={isSpeakingLastMessage}
+      />
         
         <ChatMessages
           messages={messages}
@@ -92,6 +134,8 @@ const ChatInterface = () => {
         open={showSettings}
         onClose={() => setShowSettings(false)}
         onClearHistory={handleClearHistory}
+        onToggleTheme={toggleTheme}
+        theme={theme}
       />
       
       <ToneModal
